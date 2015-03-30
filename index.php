@@ -1,77 +1,68 @@
 <?php
+include "include/php/conn.php";
 session_start();
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html >
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Untitled Document</title>
 
 <link rel="stylesheet" type="text/css" href="include/jQuery/jquery-ui.structure.min.css"/>
 <link rel="stylesheet" type="text/css" href="include/jQuery/jquery-ui.theme.min.css"/>
-<link rel="stylesheet" type="text/css" href="plugin/appendGrid/jquery.appendGrid-1.5.2.css"/>
 
 <script type="text/javascript" src="include/jQuery/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="include/jQuery/jquery-ui-1.11.1.min.js"></script>
-<script type="text/javascript" src="plugin/appendGrid/jquery.appendGrid-1.5.2.js"></script>
 
 
 
-<link rel="stylesheet" href="include/css/formoid-solid-blue.css" type="text/css" />
+
+<link rel="stylesheet" href="include/css/formoid-metro-cyan.css" type="text/css" />
 
 
 <link rel="stylesheet" href="include/css/menubar.css">
 
+
+
+<link href="include/css/bootstrap.min.css" rel="stylesheet">
+
+
+<script type="text/javascript" src="export/tableExport.js"></script>
+<script type="text/javascript" src="export/jquery.base64.js"></script>
+<script type="text/javascript" src="export/html2canvas.js"></script>
+<script type="text/javascript" src="export/jspdf/libs/sprintf.js"></script>
+<script type="text/javascript" src="export/jspdf/jspdf.js"></script>
+<script type="text/javascript" src="export/jspdf/libs/base64.js"></script>
+
 </head>
 
-<body style="padding:0; margin:0;">
-
-<script id="jsSource" type="text/javascript">
-$(function () {
-    // Initialize appendGrid
-    $('#tblAppendGrid').appendGrid({
-        caption: 'Kriteria Penilaian',
-        initRows: 1,
-        columns: [
-                { name: 'Album', display: 'Album', type: 'text', ctrlAttr: { maxlength: 100 }, ctrlCss: { width: '160px'} },
-                { name: 'Artist', display: 'Artist', type: 'text', ctrlAttr: { maxlength: 100 }, ctrlCss: { width: '100px'} },
-                { name: 'Year', display: 'Year', type: 'text', ctrlAttr: { maxlength: 4 }, ctrlCss: { width: '40px'} },
-                { name: 'Origin', display: 'Origin', type: 'select', ctrlOptions: { 0: '{Choose}', 1: 'Hong Kong', 2: 'Taiwan', 3: 'Japan', 4: 'Korea', 5: 'US', 6: 'Others'} },
-                { name: 'Poster', display: 'With Poster?', type: 'checkbox' },
-                { name: 'Price', display: 'Price', type: 'text', ctrlAttr: { maxlength: 10 }, ctrlCss: { width: '50px', 'text-align': 'right' }, value: 0 },
-                { name: 'RecordId', type: 'hidden', value: 0 }
-            ]
-    });
-    // Handle `Load` button click
-    $('#btnLoad').button().click(function () {
-        $('#tblAppendGrid').appendGrid('load', [
-            { 'Album': 'Dearest', 'Artist': 'Theresa Fu', 'Year': '2009', 'Origin': 1, 'Poster': true, 'Price': 168.9, 'RecordId': 123 },
-            { 'Album': 'To be Free', 'Artist': 'Arashi', 'Year': '2010', 'Origin': 3, 'Poster': true, 'Price': 152.6, 'RecordId': 125 },
-            { 'Album': 'Count On Me', 'Artist': 'Show Luo', 'Year': '2012', 'Origin': 2, 'Poster': false, 'Price': 306.8, 'RecordId': 127 },
-            { 'Album': 'Wonder Party', 'Artist': 'Wonder Girls', 'Year': '2012', 'Origin': 4, 'Poster': true, 'Price': 108.6, 'RecordId': 129 },
-            { 'Album': 'Reflection', 'Artist': 'Kelly Chen', 'Year': '2013', 'Origin': 1, 'Poster': false, 'Price': 138.2, 'RecordId': 131 }
-        ]);
-    });
-    // Handle `Serialize` button click
-    $('#btnSerialize').button().click(function () {
-        alert('Here is the serialized data!!\n' + $(document.forms[0]).serialize());
-    });
-});
-  </script>
+<body style="padding:0; margin:0;" >
 
 
 <table border="0" cellspacing="0" cellpadding="0" width="100%" style="  border:0; margin:0;">
-<tr  id="header"  height="150px" style="padding-left:5%;"><td>
+<tr  id="header"  height="150px" style="padding-left:5%; width:70%;"><td>
 <img src="image/logo.png" height="70%" style="margin-left:1%" />
 </td>
-<td>
+<td style="position: relative;">
 <?php
 if(!isset($_SESSION['user'])) {
-?>
-<a href="index.php?menu=register">Register</a><a href="index.php?menu=login">Login</a>
-<?php
+	echo '<div class="btn-group" style="  position: absolute; top: 2px; right: 5px;" role="group" aria-label="...">
+  
+  <button type="button" class="btn btn-default"><a href="index.php?menu=register">Register</a></button>
+   <button type="button" class="btn btn-default"><a href="index.php?menu=login">Login</a></button>
+
+ 
+</div>';
+
 } else {
-	echo 'Welcome, '.$_SESSION['user'].'<a href="index.php?menu=logout">Logout</a>';
+	echo '<div class="btn-group" style="  position: absolute; top: 2px; right: 5px;" role="group" aria-label="...">
+  <button type="button" class="btn btn-default"><img src="'.$_SESSION['profil'].'" width="15px" height="15px"></button>
+  <button type="button" class="btn btn-default">'.$_SESSION['user'].'</button>
+   <button type="button" class="btn btn-default"><a href="index.php?menu=logout">Logout</a></button>
+
+ 
+</div>';
+	
 }
 
 ?>
@@ -79,20 +70,95 @@ if(!isset($_SESSION['user'])) {
 <tr id="menubar"  style=" margin:0; padding-left:5;" height="50px"><td colspan="2">
 <div id='cssmenu' style="padding:0; margin:0;">
 <ul>
-   <li class='active'><a href='index.php'><span>Home</span></a></li>
+<?php
+if(isset($_SESSION['id_user'])){
+	if(!isset($_GET['menu'])){
+	echo "<li class='active'><a href='index.php'><span>Home</span></a></li>";
+   echo "<li><a href='index.php?menu=my_rubrics'><span>My Rubrics</span></a></li>
+   <li><a href='index.php?menu=tambah_rubrik'><span>Create</span></a></li>
+   <li><a href='index.php?menu=assesment'><span>Assesment</span></a></li>
+   <li><a href='index.php?menu=report'><span>Report</span></a></li>";
+	} else {
+   echo "<li><a href='index.php'><span>Home</span></a></li>";
+   echo "<li ";
+   if($_GET['menu'] == "my_rubrics" ) {
+	   echo "class='active'";
+   }
+   echo "><a href='index.php?menu=my_rubrics'><span>My Rubrics</span></a></li>
+   <li ";
+   if($_GET['menu'] == "tambah_rubrik") {
+	   echo "class='active'";
+   }
+   echo "><a href='index.php?menu=tambah_rubrik'><span>Create</span></a></li>
+   <li ";
+   if($_GET['menu'] == "assesment") {
+	   echo "class='active'";
+   }
+   echo "><a href='index.php?menu=assesment'><span>Assesment</span></a></li>
+   <li ";
+   if($_GET['menu'] == "report") {
+	   echo "class='active'";
+   }
+   echo "><a href='index.php?menu=report'><span>Report</span></a></li>";
+	}
+	
+} else {
+
+   echo "<li class='active'><a href='index.php'><span>Home</span></a></li>
    <li><a href='#'><span>FAQ</span></a></li>
-   <li><a href='#'><span>About</span></a></li>
+   <li><a href='#'><span>About</span></a></li>";
+
+
+}
+?>
 </ul>
 </div>
 </td></tr>
-<tr height="450px"  style="background:url(image/background.png) repeat;"><td style="background:#FFF;">
-
+<tr height="450px"><td valign="top" style="background:#FFF; padding-left:5%; padding-top:1%; padding-right:5%;">
 <?php
-if(isset($_SESSION['user'])) {
-	include "include/php/dashboard_user.php";
-} 
-if(isset($_GET['menu'])) {
-	if($_GET['menu'] == "register"){
+
+	
+
+		
+	
+	
+if(isset($_GET['kriteria'])) {
+	include "include/php/search.php";
+} else if(isset($_GET['view'])) {
+	include "include/php/view_rubrik.php";
+} else if(isset($_GET['view_enrolled'])) {
+	include "include/php/view_enrolled_students.php";
+} else if(isset($_GET['edit'])) {
+	include "include/php/edit_rubrik.php";
+} else if(isset($_GET['menu'])) {
+	if($_GET['menu'] == "report"){
+		if(isset($_GET['id_rubrik'])){
+		include "include/php/report.php";
+		} else {
+		include "include/php/list_report.php";
+		}
+	} else if($_GET['menu'] == "assesment"){
+		if(isset($_GET['do'])){
+			
+			if($_GET['do'] == "new_evaluation"){
+				include "include/php/new_assesment.php";
+			}
+			
+		} else if(isset($_GET['evaluation'])) {
+			include "include/php/evaluation_method.php";
+		} else if(isset($_GET['id_user'])){
+			include "include/php/input_score.php";
+		}  else if(isset($_GET['view_id_user'])){
+			include "include/php/view_score.php";
+		} else if(isset($_GET['edit_id_user'])){
+			include "include/php/edit_score.php";
+		} else if(isset($_GET['id_rubrik'])){
+			include "include/php/select_student.php";
+		} else {
+			include "include/php/assesment.php";
+		}
+	
+	} else if($_GET['menu'] == "register"){
 		include "form/register.php";
 	} else if($_GET['menu'] == "login"){
 		include "form/login.php";
@@ -100,20 +166,52 @@ if(isset($_GET['menu'])) {
 		include "include/php/logout.php";
 	} else if($_GET['menu'] == "tambah_rubrik"){
 		if(isset($_GET['do'])) {
+		if($_GET['do'] == "blank"){
 		include "include/php/add_blank_rubrik.php";	
-		} else {
+		} else if($_GET['do'] == "existing"){
+		include "include/php/add_existing_rubrik.php";	
+		}
+		} else 	{
 		include "include/php/menu_tambah_rubrik.php";
 		}
 		
-	} else {
+	} else if($_GET['menu'] == "my_rubrics"){
+		include "include/php/my_rubrics.php";
+	}  
+	}  else {
+		include "include/php/dashboard_user.php";
 	}
-  
-} 
 ?>
 
 </td>
-<td style="background:#CCC">
-<h1>Search</h1>
+<td style="width:20%; padding-top:1%;" valign="top">
+<div class="panel panel-default" >
+  <div class="panel-heading">
+    <h3 class="panel-title"><b>Search</b></h3>
+  </div>
+  <div class="panel-body">
+  <form action="index.php" method="get">
+    <div class="form-group">
+  <label for="sel1">Kriteria</label>
+  <select name="kriteria" class="form-control" id="sel1">
+    <option value="judul">Judul</option>
+    <option value="id_user">User</option>
+  </select>
+</div>
+<div class="form-group">
+  <label for="pwd">Keyword : </label>
+  <input name="keyword" type="text" class="form-control" id="pwd">
+</div>
+<div class="form-group" align="right" >
+<button type="submit" style="width:100%" class="btn btn-default">
+  <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search
+</button>
+  
+  </form>
+</div>
+
+  </div>
+</div>
 
 </td>
 </tr>
@@ -121,7 +219,11 @@ if(isset($_GET['menu'])) {
 
 </table>
 
-<script type="text/javascript" src="formoid_files/formoid1/formoid-solid-blue.js"></script>
+<script type="text/javascript" src="include/js/formoid-metro-cyan.js"></script>
+
+
+<script src="include/js/bootstrap.min.js"></script>
+
 
 </body>
 </html>

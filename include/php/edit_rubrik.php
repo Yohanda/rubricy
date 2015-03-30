@@ -1,40 +1,5 @@
-<script>
-var id;
-
-function info_sukses() {
-		$("#berhasil_tambah").modal('show');
-	}
-	function redirect_view(){
-		$(location).attr('href',"index.php?view="+id);
-	}
-	
-</script>
-<div id="berhasil_tambah" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Information</h4>
-            </div>
-            <div class="modal-body">
-                <p>Rubrik berhasil dibuat</p>
-                
-            </div>
-            <div class="modal-footer">
-               <button onclick="redirect_view();" type="button" class="btn btn-default" data-dismiss="modal">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<?php
-if(isset($_GET['isian'])){
-	echo 'asd';
-} else {
-?>
-
-
 <script type='text/javascript'>//<![CDATA[ 
+
 
 
 
@@ -109,7 +74,30 @@ function deleteColumns() {
     }
 }
 </script>
-<h1>Create Rubric</h1><hr />
+<?php
+//get current id
+$sql = 'SELECT * FROM tb_rubrik inner join tb_kategori on tb_kategori.id_kategori = tb_rubrik.id_kategori where id_rubrik = '.$_GET['edit'];
+$stmt = sqlsrv_query($conn, $sql);
+
+if( $stmt === false) {
+    die( print_r( sqlsrv_errors(), true) );
+} 
+
+$rubrik_prop = sqlsrv_fetch_array($stmt);
+
+$sql = 'SELECT * FROM tb_kategori';
+$stmt = sqlsrv_query($conn, $sql);
+
+if( $stmt === false) {
+    die( print_r( sqlsrv_errors(), true) );
+} 
+
+
+
+
+echo '<h1>'.$rubrik_prop['judul'].'</h1><hr />';
+
+?>
 <h4>Rubric Information</h4>
 <form id="rubrik_prop">
 <table style="border-collapse: separate; width:100%; border-spacing: 20px;">
@@ -117,12 +105,12 @@ function deleteColumns() {
 <td>
 <div class="form-group">
   <label for="pwd">Judul : </label>
-   <input class="form-control" type="text" name="judul">
+   <input value="<?php echo $rubrik_prop['judul']; ?>" class="form-control" type="text" name="judul">
 </div>
 </td>
 <td> <div class="form-group">
   <label for="pwd">Enrollment Key : </label>
-  <input class="form-control" type="text" name="enrollment_key">
+  <input value="<?php echo $rubrik_prop['enrollment_key']; ?>" class="form-control" type="text" name="enrollment_key">
 </div></td>
 </tr>
 <tr>
@@ -132,18 +120,15 @@ function deleteColumns() {
   <label for="sel1">Kategori :</label>
   <select name="kategori" class="form-control" id="sel1">
   <?php
-  $sql = 'SELECT * FROM tb_kategori';
-$stmt = sqlsrv_query($conn, $sql);
-
-if( $stmt === false) {
-    die( print_r( sqlsrv_errors(), true) );
-} 
-
-while($kategori = sqlsrv_fetch_array($stmt)){
+  while($kategori = sqlsrv_fetch_array($stmt)){
   
-   echo '<option value="'.$kategori['id_kategori'].'">'.$kategori['nama_kategori'].'</option>';
+   echo '<option ';
+   if($rubrik_prop['id_kategori'] == $kategori['id_kategori']){
+	   echo 'selected';
+   }
+   echo ' value="'.$kategori['id_kategori'].'">'.$kategori['nama_kategori'].'</option>';
   }
-  ?>
+   ?>
   </select>
 </div>
 
@@ -153,45 +138,92 @@ while($kategori = sqlsrv_fetch_array($stmt)){
 <td>
 <div class="form-group">
   <label for="comment">Deskripsi :</label>
-  <textarea class="form-control" name="deskripsi_rubrik" rows="5" ></textarea>
+  <textarea class="form-control" name="deskripsi_rubrik" rows="5" ><?php echo $rubrik_prop['enrollment_key']; ?></textarea>
 </div>
 </td>
 </tr>
 <tr>
 <td>
 <div class="checkbox">
-  <label class="checkbox-inline"><input  id="set_as_template" type="checkbox" name="set_as_template" value="1">Set as Template</label>
+  <label class="checkbox-inline"><input id="set_as_template" type="checkbox" name="set_as_template" <?php if($rubrik_prop['status_berbagi'] == 1) {echo 'checked="checked"';} ?> value="1">Set as Template</label>
 </div>
 </td>
 </tr>
 
 </table>
+
 </form>
+
 <hr />
+<form id="rubrik">
+<input type="hidden" id="id_rubrik" value="<?php echo $_GET['edit']; ?>" />
 <h4>Rubric Editor</h4>
-<form id="rubrik" action="">
+<?php
+echo '<table id="my_table" class="table table-striped" align="center" cellspacing="0" cellpadding="0">';
+echo '<thead><th>Kriteria</th>';
 
-
-<table id="my_table" class="table table-striped" align="center" cellspacing="0" cellpadding="0">
-<thead>
-<th>Kriteria</th>
-<td>a ( 10 pts )</td>
-<td>b ( 20 pts )</td>
-</thead>
-<tr>
-<td>c ( 1% )</td>
-<td><input type="text" name="isian" value="ac"/></td>
-<td><input type="text" name="isian" value="bc"/></td>
-</tr>
-<tr>
-<td>d  ( 2% )</td>
-<td><input type="text" name="isian" value="ad"/></td>
-<td><input type="text" name="isian" value="bd"/></td>
-</tr>
+//get kriteria & bobot
+$get_kriteria = "select * from tb_kriteria where id_rubrik =".$_GET['edit']." ORDER BY id_kriteria ASC";
 
 
 
-</table>
+$stmt_get_kriteria = sqlsrv_query( $conn, $get_kriteria );
+if( $stmt_get_kriteria === false) {
+    die( print_r( sqlsrv_errors(), true) );
+}
+$arr_kriteria;
+$count = 0;
+while ($row = sqlsrv_fetch_array($stmt_get_kriteria)) {
+    $arr_kriteria[$count] = $row;
+	$count++;
+}
+
+//print bobot
+$get_bobot = "select * from tb_bobot where id_rubrik =".$_GET['edit']." ORDER BY id_bobot ASC";
+
+
+
+$stmt_get_bobot = sqlsrv_query( $conn, $get_bobot );
+if( $stmt_get_bobot === false) {
+    die( print_r( sqlsrv_errors(), true) );
+}
+
+$arr_bobot;
+$count = 0;
+while ($row = sqlsrv_fetch_array($stmt_get_bobot)) {
+    $arr_bobot[$count] = $row;
+	echo "<td>".$arr_bobot[$count]['nama_bobot'].' ( '.$arr_bobot[$count]['nilai_bobot']." pts )</td>";
+	$count++;
+}
+echo '</thead>';
+
+for($i = 0; $i < sizeof($arr_kriteria);$i++) {
+echo '<tr>';
+echo '<td>'.$arr_kriteria[$i]['nama_kriteria'].' ( '.$arr_kriteria[$i]['persentase_kriteria'].'% )</td>';
+
+//get deskripsi
+
+
+$get_bobot = "select * from tb_deskripsi_bobot where id_kriteria = ".$arr_kriteria[$i]['id_kriteria'];
+
+
+
+$stmt_get_bobot = sqlsrv_query( $conn, $get_bobot );
+if( $stmt_get_bobot === false) {
+    die( print_r( sqlsrv_errors(), true) );
+}
+while ($row = sqlsrv_fetch_array($stmt_get_bobot)) {
+    echo "<td><input type='text' value='".$row['deskripsi_bobot']."'></td>";
+}
+
+
+
+
+echo '</tr>';
+}
+
+echo '</table><hr>';
+?>
 <button type="submit" value="Save" id="btnSave"  class="btn btn-default">
   <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Save
 </button>
@@ -235,9 +267,6 @@ while($kategori = sqlsrv_fetch_array($stmt)){
 </button>
 <br />
 <br>
-
-
-<button onclick="info_sukses();">ASD</button>
 
 <script type="text/javascript">
 /*
@@ -288,6 +317,7 @@ if(x == true){
 } else {
 	 postData[count_prop] = 0;
 }
+
 //alert("Prop : " + postData.join(","));
 	//ambil deskripsi
 	var deskripsi ="";
@@ -386,32 +416,29 @@ var counter_bobot2 = 0;
 	// process the form
         $.ajax(
     {
-        url : "include/php/add_blank_respon.php",
+        url : "include/php/edit_respon.php",
         type: "POST",
         data : {  'rubrik_prop':postData.join(","),
 		'deskripsi':deskripsi,
 		'kriteria':kriteria.join(","),
 		'kriteria_persen':kriteria_persen.join(","),
 		'bobot':bobot.join(","),
-		'bobot_nilai':bobot_nilai.join(",")
+		'bobot_nilai':bobot_nilai.join(","),
+		'id_rubrik':document.getElementById('id_rubrik').value
 		},
         success:function(data, textStatus, jqXHR) 
         {
             //data: return data from server
-			id = data;
-			info_sukses();
-			
+			alert('berhasil');
+			$(location).attr('href',"index.php?view="+data);
 			
         },
         error: function(jqXHR, textStatus, errorThrown) 
         {
             //if fails
-			id = jqXHR;
-			info_sukses();
-			
+			alert("Gagal"); 
         }
     });
-	return false;
     e.preventDefault(); //STOP default action
     e.unbind(); //unbind. to stop multiple form submit.
 	
@@ -460,6 +487,4 @@ var counter_bobot2 = 0;
 });
 </script>
 
-<?php
-}
-?>
+
